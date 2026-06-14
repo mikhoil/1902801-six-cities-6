@@ -20,7 +20,6 @@ describe('NotFoundPage', () => {
       </MemoryRouter>,
     );
     const link = screen.getByRole('link', { name: /go to main page/i });
-    expect(link).toBeInTheDocument();
     expect(link).toHaveAttribute('href', '/');
   });
 });

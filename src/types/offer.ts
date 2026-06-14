@@ -1,4 +1,4 @@
-type OfferType = 'Apartment' | 'Room' | 'House' | 'Hotel';
+export type OfferType = 'apartment' | 'room' | 'house' | 'hotel';
 
 export interface Offer {
   id: string;

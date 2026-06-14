@@ -23,7 +23,7 @@ describe('userReducer', () => {
     expect(result.authorizationStatus).toBe(AuthorizationStatus.Auth);
   });
 
-  it('should set requireAuthorization to NoAuth', () => {
+  it('should set authorizationStatus to NoAuth on requireAuthorization', () => {
     const result = userReducer(
       initialState,
       requireAuthorization(AuthorizationStatus.NoAuth),

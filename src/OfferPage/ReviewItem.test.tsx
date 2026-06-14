@@ -16,19 +16,19 @@ describe('ReviewItem', () => {
     expect(screen.getByText(review.comment)).toBeInTheDocument();
   });
 
-  it('should render user avatar', () => {
+  it('should render user avatar with correct src', () => {
     const review = makeMockReview();
     render(<ReviewItem review={review} />);
     const avatar = screen.getByAltText('Reviews avatar');
-    expect(avatar).toBeInTheDocument();
     expect(avatar).toHaveAttribute('src', review.user.avatarUrl);
   });
 
-  it('should render date time attribute', () => {
-    const review = { ...makeMockReview(), date: '2024-03-15T10:00:00.000Z' };
+  it('should render time element with correct dateTime attribute', () => {
+    const review = { ...makeMockReview(), date: '2024-06-15T10:00:00.000Z' };
     const { container } = render(<ReviewItem review={review} />);
-    const time = container.querySelector('time');
-    expect(time).toBeInTheDocument();
-    expect(time).toHaveAttribute('dateTime', '2024-03-15');
+    expect(container.querySelector('time')).toHaveAttribute(
+      'dateTime',
+      '2024-06-15',
+    );
   });
 });

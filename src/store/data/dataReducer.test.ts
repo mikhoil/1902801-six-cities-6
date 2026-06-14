@@ -68,10 +68,13 @@ describe('dataReducer', () => {
 
   it('should replace reviews on submitReview.fulfilled', () => {
     const reviews = [makeMockReview()];
-    const arg = { offerId: '1', comment: 'Great', rating: 4 };
     const result = dataReducer(
       initialState,
-      submitReview.fulfilled(reviews, '', arg),
+      submitReview.fulfilled(reviews, '', {
+        offerId: '1',
+        comment: '',
+        rating: 4,
+      }),
     );
     expect(result.reviews).toEqual(reviews);
   });
@@ -85,7 +88,7 @@ describe('dataReducer', () => {
     expect(result.favoriteOffers).toEqual(favorites);
   });
 
-  it('should update offer in offers on toggleFavorite.fulfilled', () => {
+  it('should update offer in offers array on toggleFavorite.fulfilled', () => {
     const offer = { ...makeMockOffer(), isFavorite: false };
     const state = { ...initialState, offers: [offer] };
     const updated = { ...offer, isFavorite: true };
@@ -131,13 +134,9 @@ describe('dataReducer', () => {
     expect(result.currentOffer?.isFavorite).toBe(true);
   });
 
-  it('should not update currentOffer on toggleFavorite.fulfilled when ids differ', () => {
-    const offer = { ...makeMockOffer(), id: 'offer-1' };
-    const current = {
-      ...makeMockOffer(),
-      id: 'other-offer',
-      isFavorite: false,
-    };
+  it('should not change currentOffer on toggleFavorite.fulfilled when ids differ', () => {
+    const offer = { ...makeMockOffer(), id: 'offer-1', isFavorite: false };
+    const current = { ...makeMockOffer(), id: 'other', isFavorite: false };
     const state = { ...initialState, currentOffer: current, offers: [offer] };
     const updated = { ...offer, isFavorite: true };
     const result = dataReducer(

@@ -28,16 +28,16 @@ const makeStore = (authorizationStatus: AuthorizationStatus) =>
     },
   });
 
-const renderPrivateRoute = (authorizationStatus: AuthorizationStatus) =>
+const renderPrivateRoute = (status: AuthorizationStatus) =>
   render(
-    <Provider store={makeStore(authorizationStatus)}>
+    <Provider store={makeStore(status)}>
       <MemoryRouter initialEntries={['/']}>
         <Routes>
           <Route
             path="/"
             element={
               <PrivateRoute>
-                <div>Protected Content</div>
+                <div>Protected</div>
               </PrivateRoute>
             }
           />
@@ -50,18 +50,18 @@ const renderPrivateRoute = (authorizationStatus: AuthorizationStatus) =>
 describe('PrivateRoute', () => {
   it('should render children when user is authorized', () => {
     renderPrivateRoute(AuthorizationStatus.Auth);
-    expect(screen.getByText('Protected Content')).toBeInTheDocument();
+    expect(screen.getByText('Protected')).toBeInTheDocument();
   });
 
-  it('should render spinner when auth status is unknown', () => {
+  it('should render Spinner when auth status is Unknown', () => {
     const { container } = renderPrivateRoute(AuthorizationStatus.Unknown);
     expect(container.querySelector('.spinner')).toBeInTheDocument();
-    expect(screen.queryByText('Protected Content')).not.toBeInTheDocument();
+    expect(screen.queryByText('Protected')).not.toBeInTheDocument();
   });
 
-  it('should redirect to login when user is not authorized', () => {
+  it('should redirect to /login when user is not authorized', () => {
     renderPrivateRoute(AuthorizationStatus.NoAuth);
     expect(screen.getByText('Login Page')).toBeInTheDocument();
-    expect(screen.queryByText('Protected Content')).not.toBeInTheDocument();
+    expect(screen.queryByText('Protected')).not.toBeInTheDocument();
   });
 });

@@ -95,7 +95,7 @@ describe('api-actions', () => {
       mockAPI.onPost('/comments/1').reply(200, reviews);
       const store = makeStore();
       await store.dispatch(
-        submitReview({ offerId: '1', comment: 'Nice!', rating: 4 }),
+        submitReview({ offerId: '1', comment: 'Great!', rating: 4 }),
       );
       expect(store.getState()[NameSpace.Data].reviews).toEqual(reviews);
     });
@@ -134,7 +134,7 @@ describe('api-actions', () => {
   });
 
   describe('toggleFavorite', () => {
-    it('should update offer in state on success', async () => {
+    it('should update favoriteOffers on success', async () => {
       const offer = { ...makeMockOffer(), isFavorite: false };
       const updated = { ...offer, isFavorite: true };
       mockAPI.onPost(`/favorite/${offer.id}/1`).reply(200, updated);

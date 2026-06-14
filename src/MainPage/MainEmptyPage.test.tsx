@@ -8,7 +8,7 @@ describe('MainEmpty', () => {
     expect(screen.getByText('No places to stay available')).toBeInTheDocument();
   });
 
-  it('should include city name in description', () => {
+  it('should render city name in description', () => {
     render(<MainEmpty city="Amsterdam" />);
     expect(
       screen.getByText(
