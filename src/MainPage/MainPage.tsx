@@ -3,13 +3,32 @@ import Map from '../Map';
 import { RootState } from '../store';
 import OfferList from './OfferList';
 import CitiesList from './CitiesList';
+import { useMemo, useState } from 'react';
+import SortOptions, { SortType } from './SortOptions';
 
 export default function MainPage() {
   const activeCity = useSelector((state: RootState) => state.app.activeCity);
+
   const allOffers = useSelector((state: RootState) => state.app.offers);
-  const offersByCity = allOffers.filter(
-    (offer) => offer.city.name === activeCity,
-  );
+
+  const [sortType, setSortType] = useState<SortType>('Popular');
+
+  const [activeId, setActiveId] = useState<string | null>(null);
+
+  const offersByCity = useMemo(() => {
+    const filtered = allOffers.filter((p: any) => p.city?.name === activeCity);
+    if (sortType === 'Popular') {
+      return filtered;
+    }
+    if (sortType === 'Price: low to high') {
+      return [...filtered].sort((a, b) => (a.price ?? 0) - (b.price ?? 0));
+    }
+    if (sortType === 'Price: high to low') {
+      return [...filtered].sort((a, b) => (b.price ?? 0) - (a.price ?? 0));
+    }
+    return [...filtered].sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
+  }, [allOffers, activeCity, sortType]);
+
   const offersCount = offersByCity.length;
 
   return (
@@ -89,10 +108,15 @@ export default function MainPage() {
                   </li>
                 </ul>
               </form>
-              <OfferList offers={allOffers} />
+              <SortOptions value={sortType} onChange={setSortType} />
+              <OfferList offers={offersByCity} onActiveChange={setActiveId} />
             </section>
             <div className="cities__right-section">
-              <Map places={allOffers} containerClassName="cities__map map" />
+              <Map
+                offers={offersByCity}
+                activeOfferId={activeId}
+                containerClassName="cities__map map"
+              />
             </div>
           </div>
         </div>

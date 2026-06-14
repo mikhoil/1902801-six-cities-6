@@ -190,7 +190,7 @@ export default function OfferPage() {
           </div>
           {nearby ? (
             <Map
-              places={nearby}
+              offers={nearby}
               containerClassName="offer__map map"
               height="400px"
             />

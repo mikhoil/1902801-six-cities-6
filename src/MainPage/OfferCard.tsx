@@ -3,20 +3,28 @@ import { Offer } from '../mocks/offers';
 
 interface OfferCardProps {
   offer: Offer;
-  onHover?: (id: string | undefined) => void;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
+  onFocus?: () => void;
+  onBlur?: () => void;
   classNamePrefix?: string;
 }
 
 export default function OfferCard({
   offer,
-  onHover,
+  onMouseEnter,
+  onMouseLeave,
+  onFocus,
+  onBlur,
   classNamePrefix = 'cities',
 }: OfferCardProps) {
   return (
     <article
       className={`${classNamePrefix}__card place-card`}
-      onMouseEnter={() => onHover?.(offer.id)}
-      onMouseLeave={() => onHover?.(undefined)}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      onFocus={onFocus}
+      onBlur={onBlur}
     >
       {offer.isPremium && (
         <div className="place-card__mark">
@@ -43,13 +51,17 @@ export default function OfferCard({
             <span className="place-card__price-text">&#47;&nbsp;night</span>
           </div>
           <button
-            className={`place-card__bookmark-button button ${offer.isPremium ? 'place-card__bookmark-button--active' : ''}`}
+            className={`place-card__bookmark-button ${
+              offer.isFavorite ? 'place-card__bookmark-button--active' : ''
+            } button`}
             type="button"
           >
             <svg className="place-card__bookmark-icon" width="18" height="19">
               <use xlinkHref="#icon-bookmark"></use>
             </svg>
-            <span className="visually-hidden">To bookmarks</span>
+            <span className="visually-hidden">
+              {offer.isFavorite ? 'In bookmarks' : 'To bookmarks'}
+            </span>
           </button>
         </div>
         <div className="place-card__rating rating">
