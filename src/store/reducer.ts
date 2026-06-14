@@ -1,18 +1,23 @@
 import { createReducer } from '@reduxjs/toolkit';
 import { Offer } from '../types/offer';
-import { fetchOffers } from './apiActions';
-import { setActiveCity } from './action';
+import { checkAuth, fetchOffers, login } from './apiActions';
+import { requireAuthorization, setActiveCity } from './action';
+import { AuthInfo, AuthorizationStatus } from '../types/auth';
 
 type State = {
   activeCity: string;
   offers: Offer[];
   isOffersLoading: boolean;
+  authorizationStatus: AuthorizationStatus;
+  userData: AuthInfo | null;
 };
 
 const initialState: State = {
   activeCity: 'Paris',
   offers: [],
   isOffersLoading: false,
+  authorizationStatus: AuthorizationStatus.Unknown,
+  userData: null,
 };
 
 export const reducer = createReducer(initialState, (builder) => {
@@ -29,5 +34,22 @@ export const reducer = createReducer(initialState, (builder) => {
     })
     .addCase(fetchOffers.rejected, (state) => {
       state.isOffersLoading = false;
+    })
+    .addCase(requireAuthorization, (state, action) => {
+      state.authorizationStatus = action.payload;
+    })
+    .addCase(checkAuth.fulfilled, (state, action) => {
+      state.authorizationStatus = AuthorizationStatus.Auth;
+      state.userData = action.payload;
+    })
+    .addCase(checkAuth.rejected, (state) => {
+      state.authorizationStatus = AuthorizationStatus.NoAuth;
+    })
+    .addCase(login.fulfilled, (state, action) => {
+      state.authorizationStatus = AuthorizationStatus.Auth;
+      state.userData = action.payload;
+    })
+    .addCase(login.rejected, (state) => {
+      state.authorizationStatus = AuthorizationStatus.NoAuth;
     });
 });

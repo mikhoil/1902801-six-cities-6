@@ -5,11 +5,8 @@ import LoginPage from './LoginPage/LoginPage';
 import FavoritesPage from './FavoritesPage/FavoritesPage';
 import NotFoundPage from './NotFoundPage/NotFoundPage';
 import PrivateRoute from './PrivateRoute/PrivateRoute';
-import { Offer } from './mocks/offers';
 
 export default function App() {
-  const isAuthorized = false;
-
   return (
     <BrowserRouter>
       <Routes>
@@ -18,7 +15,7 @@ export default function App() {
         <Route
           path="/favorites"
           element={
-            <PrivateRoute isAuthorized={isAuthorized}>
+            <PrivateRoute>
               <FavoritesPage />
             </PrivateRoute>
           }

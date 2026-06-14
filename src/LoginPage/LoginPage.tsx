@@ -1,11 +1,41 @@
+import { FormEvent, useRef } from 'react';
+import { AuthorizationStatus } from '../types/auth';
+import { AppDispatch, RootState } from '../store';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link, Navigate } from 'react-router-dom';
+import { login } from '../store/apiActions';
+
 export default function LoginPage() {
+  const loginRef = useRef<HTMLInputElement | null>(null);
+  const passwordRef = useRef<HTMLInputElement | null>(null);
+
+  const dispatch = useDispatch<AppDispatch>();
+
+  const authorizationStatus = useSelector(
+    (state: RootState) => state.authorizationStatus,
+  );
+
+  if (authorizationStatus === AuthorizationStatus.Auth)
+    return <Navigate to="/" />;
+
+  function handleSubmit(evt: FormEvent<HTMLFormElement>) {
+    evt.preventDefault();
+    if (loginRef.current && passwordRef.current)
+      dispatch(
+        login({
+          email: loginRef.current.value,
+          password: passwordRef.current.value,
+        }),
+      );
+  }
+
   return (
     <div className="page page--gray page--login">
       <header className="header">
         <div className="container">
           <div className="header__wrapper">
             <div className="header__left">
-              <a className="header__logo-link" href="main.html">
+              <Link className="header__logo-link" to="/">
                 <img
                   className="header__logo"
                   src="img/logo.svg"
@@ -13,7 +43,7 @@ export default function LoginPage() {
                   width="81"
                   height="41"
                 />
-              </a>
+              </Link>
             </div>
           </div>
         </div>
@@ -23,7 +53,7 @@ export default function LoginPage() {
         <div className="page__login-container container">
           <section className="login">
             <h1 className="login__title">Sign in</h1>
-            <form className="login__form form" action="#" method="post">
+            <form className="login__form form" onSubmit={handleSubmit}>
               <div className="login__input-wrapper form__input-wrapper">
                 <label className="visually-hidden">E-mail</label>
                 <input
@@ -32,6 +62,7 @@ export default function LoginPage() {
                   name="email"
                   placeholder="Email"
                   required
+                  ref={loginRef}
                 />
               </div>
               <div className="login__input-wrapper form__input-wrapper">
@@ -42,6 +73,7 @@ export default function LoginPage() {
                   name="password"
                   placeholder="Password"
                   required
+                  ref={passwordRef}
                 />
               </div>
               <button
