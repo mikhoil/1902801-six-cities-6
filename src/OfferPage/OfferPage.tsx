@@ -3,7 +3,7 @@ import ReviewList from './ReviewList';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch } from '../store';
 import NearOffersList from './NearOffersList';
-import { Link, Navigate, useParams } from 'react-router-dom';
+import { Navigate, useParams } from 'react-router-dom';
 import { useEffect } from 'react';
 import {
   fetchNearbyOffers,
@@ -18,8 +18,8 @@ import {
   selectIsOfferLoading,
   selectNearbyOffers,
   selectReviews,
-  selectUserData,
 } from '../store/selectors';
+import Header from '../Header';
 
 const OFFER_TYPE_MAP: Record<string, string> = {
   apartment: 'Apartment',
@@ -38,7 +38,6 @@ export default function OfferPage() {
   const reviews = useSelector(selectReviews);
   const isOfferLoading = useSelector(selectIsOfferLoading);
   const authorizationStatus = useSelector(selectAuthorizationStatus);
-  const userData = useSelector(selectUserData);
 
   useEffect(() => {
     if (id) {
@@ -74,58 +73,7 @@ export default function OfferPage() {
 
   return (
     <div className="page">
-      <header className="header">
-        <div className="container">
-          <div className="header__wrapper">
-            <div className="header__left">
-              <Link className="header__logo-link" to="/">
-                <img
-                  className="header__logo"
-                  src="img/logo.svg"
-                  alt="6 cities logo"
-                  width="81"
-                  height="41"
-                />
-              </Link>
-            </div>
-            <nav className="header__nav">
-              <ul className="header__nav-list">
-                {authorizationStatus === AuthorizationStatus.Auth ? (
-                  <>
-                    <li className="header__nav-item user">
-                      <Link
-                        className="header__nav-link header__nav-link--profile"
-                        to="/favorites"
-                      >
-                        <div className="header__avatar-wrapper user__avatar-wrapper"></div>
-                        <span className="header__user-name user__name">
-                          {userData?.email}
-                        </span>
-                        <span className="header__favorite-count">3</span>
-                      </Link>
-                    </li>
-                    <li className="header__nav-item">
-                      <a className="header__nav-link" href="#todo">
-                        <span className="header__signout">Sign out</span>
-                      </a>
-                    </li>
-                  </>
-                ) : (
-                  <li className="header__nav-item user">
-                    <Link
-                      className="header__nav-link header__nav-link--profile"
-                      to="/login"
-                    >
-                      <div className="header__avatar-wrapper user__avatar-wrapper"></div>
-                      <span className="header__login">Sign in</span>
-                    </Link>
-                  </li>
-                )}
-              </ul>
-            </nav>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       <main className="page__main page__main--offer">
         <section className="offer">

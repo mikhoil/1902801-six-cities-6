@@ -1,7 +1,8 @@
 import { createReducer } from '@reduxjs/toolkit';
 import { requireAuthorization } from '../action';
-import { checkAuth, login } from '../apiActions';
-import { AuthInfo, AuthorizationStatus } from '../../types/auth';
+import { checkAuth, login, logout } from '../apiActions';
+import { AuthInfo } from '../../types/auth';
+import { AuthorizationStatus } from '../../types/auth';
 
 type UserState = {
   authorizationStatus: AuthorizationStatus;
@@ -31,5 +32,9 @@ export const userReducer = createReducer(initialState, (builder) => {
     })
     .addCase(login.rejected, (state) => {
       state.authorizationStatus = AuthorizationStatus.NoAuth;
+    })
+    .addCase(logout.fulfilled, (state) => {
+      state.authorizationStatus = AuthorizationStatus.NoAuth;
+      state.userData = null;
     });
 });

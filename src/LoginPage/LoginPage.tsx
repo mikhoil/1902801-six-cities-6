@@ -1,35 +1,51 @@
-import { FormEvent, useCallback, useRef } from 'react';
-import { AuthorizationStatus } from '../types/auth';
-import { AppDispatch } from '../store';
+import { FormEvent, useRef, useMemo } from 'react';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, Navigate } from 'react-router-dom';
 import { login } from '../store/apiActions';
+import { setActiveCity } from '../store/action';
 import { selectAuthorizationStatus } from '../store/selectors';
+import { AuthorizationStatus } from '../types/auth';
+import { mockCityNames } from '../mocks/cities';
+import { AppDispatch } from '../store';
 
-export default function LoginPage() {
+const PASSWORD_PATTERN = /^(?=.*[A-Za-z])(?=.*\d).+$/;
+
+function LoginPage(): JSX.Element {
   const loginRef = useRef<HTMLInputElement | null>(null);
   const passwordRef = useRef<HTMLInputElement | null>(null);
-
   const dispatch = useDispatch<AppDispatch>();
-
+  const navigate = useNavigate();
   const authorizationStatus = useSelector(selectAuthorizationStatus);
 
-  if (authorizationStatus === AuthorizationStatus.Auth)
-    return <Navigate to="/" />;
-
-  const handleSubmit = useCallback(
-    (e: FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
-      if (loginRef.current && passwordRef.current)
-        dispatch(
-          login({
-            email: loginRef.current.value,
-            password: passwordRef.current.value,
-          }),
-        );
-    },
-    [dispatch],
+  const randomCity = useMemo(
+    () => mockCityNames[Math.floor(Math.random() * mockCityNames.length)],
+    [],
   );
+
+  if (authorizationStatus === AuthorizationStatus.Auth) {
+    return <Navigate to="/" />;
+  }
+
+  const handleSubmit = (evt: FormEvent<HTMLFormElement>) => {
+    evt.preventDefault();
+    if (loginRef.current && passwordRef.current) {
+      if (!PASSWORD_PATTERN.test(passwordRef.current.value)) {
+        return;
+      }
+      dispatch(
+        login({
+          email: loginRef.current.value,
+          password: passwordRef.current.value,
+        }),
+      );
+    }
+  };
+
+  const handleCityClick = (evt: React.MouseEvent) => {
+    evt.preventDefault();
+    dispatch(setActiveCity(randomCity));
+    navigate('/');
+  };
 
   return (
     <div className="page page--gray page--login">
@@ -55,7 +71,12 @@ export default function LoginPage() {
         <div className="page__login-container container">
           <section className="login">
             <h1 className="login__title">Sign in</h1>
-            <form className="login__form form" onSubmit={handleSubmit}>
+            <form
+              className="login__form form"
+              action="#"
+              method="post"
+              onSubmit={handleSubmit}
+            >
               <div className="login__input-wrapper form__input-wrapper">
                 <label className="visually-hidden">E-mail</label>
                 <input
@@ -88,8 +109,12 @@ export default function LoginPage() {
           </section>
           <section className="locations locations--login locations--current">
             <div className="locations__item">
-              <a className="locations__item-link" href="#">
-                <span>Amsterdam</span>
+              <a
+                className="locations__item-link"
+                href="#"
+                onClick={handleCityClick}
+              >
+                <span>{randomCity}</span>
               </a>
             </div>
           </section>
@@ -98,3 +123,5 @@ export default function LoginPage() {
     </div>
   );
 }
+
+export default LoginPage;
