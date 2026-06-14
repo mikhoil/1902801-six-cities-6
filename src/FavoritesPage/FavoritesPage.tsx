@@ -1,15 +1,16 @@
 import { useSelector } from 'react-redux';
-import { RootState } from '../store';
-import OfferList from '../MainPage/OfferList';
 import { Link } from 'react-router-dom';
 import OfferCard from '../MainPage/OfferCard';
+import { selectFavoriteOffers } from '../store/selectors';
+import { useMemo } from 'react';
 
 export default function FavoritesPage() {
-  const offers = useSelector((state: RootState) => state.offers);
+  const favoriteOffers = useSelector(selectFavoriteOffers);
 
-  const favoriteOffers = offers.filter((offer) => offer.isFavorite);
-
-  const cities = [...new Set(favoriteOffers.map((offer) => offer.city.name))];
+  const cities = useMemo(
+    () => [...new Set(favoriteOffers.map((offer) => offer.city.name))],
+    [favoriteOffers],
+  );
 
   return (
     <div className="page">

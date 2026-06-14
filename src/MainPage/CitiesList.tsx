@@ -1,14 +1,12 @@
+import { memo } from 'react';
+
 interface CitiesListProps {
   currentCity: string;
   cities: string[];
   onCityChange: (city: string) => void;
 }
 
-export default function CitiesList({
-  currentCity,
-  cities,
-  onCityChange,
-}: CitiesListProps) {
+function CitiesList({ currentCity, cities, onCityChange }: CitiesListProps) {
   return (
     <section className="locations container">
       <ul className="locations__list tabs__list">
@@ -32,3 +30,5 @@ export default function CitiesList({
     </section>
   );
 }
+
+export default memo(CitiesList);

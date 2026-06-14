@@ -1,9 +1,10 @@
-import { FormEvent, useRef } from 'react';
+import { FormEvent, useCallback, useRef } from 'react';
 import { AuthorizationStatus } from '../types/auth';
-import { AppDispatch, RootState } from '../store';
+import { AppDispatch } from '../store';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, Navigate } from 'react-router-dom';
 import { login } from '../store/apiActions';
+import { selectAuthorizationStatus } from '../store/selectors';
 
 export default function LoginPage() {
   const loginRef = useRef<HTMLInputElement | null>(null);
@@ -11,23 +12,24 @@ export default function LoginPage() {
 
   const dispatch = useDispatch<AppDispatch>();
 
-  const authorizationStatus = useSelector(
-    (state: RootState) => state.authorizationStatus,
-  );
+  const authorizationStatus = useSelector(selectAuthorizationStatus);
 
   if (authorizationStatus === AuthorizationStatus.Auth)
     return <Navigate to="/" />;
 
-  function handleSubmit(evt: FormEvent<HTMLFormElement>) {
-    evt.preventDefault();
-    if (loginRef.current && passwordRef.current)
-      dispatch(
-        login({
-          email: loginRef.current.value,
-          password: passwordRef.current.value,
-        }),
-      );
-  }
+  const handleSubmit = useCallback(
+    (e: FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      if (loginRef.current && passwordRef.current)
+        dispatch(
+          login({
+            email: loginRef.current.value,
+            password: passwordRef.current.value,
+          }),
+        );
+    },
+    [dispatch],
+  );
 
   return (
     <div className="page page--gray page--login">

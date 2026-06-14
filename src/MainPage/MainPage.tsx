@@ -1,9 +1,8 @@
 import { useDispatch, useSelector } from 'react-redux';
 import Map from '../Map';
-import { RootState } from '../store';
 import OfferList from './OfferList';
 import CitiesList from './CitiesList';
-import { useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import SortOptions, { SortType } from './SortOptions';
 import { Offer } from '../types/offer';
 import { setActiveCity } from '../store/action';
@@ -11,6 +10,13 @@ import { mockCityNames, getCityByName } from '../mocks/cities';
 import { Link } from 'react-router-dom';
 import Spinner from '../Spinner/Spinner';
 import { AuthorizationStatus } from '../types/auth';
+import {
+  selectAuthorizationStatus,
+  selectCity,
+  selectCityOffers,
+  selectIsOffersLoading,
+  selectUserData,
+} from '../store/selectors';
 
 function getSortedOffers(offers: Offer[], sort: SortType): Offer[] {
   switch (sort) {
@@ -26,31 +32,30 @@ function getSortedOffers(offers: Offer[], sort: SortType): Offer[] {
 }
 
 export default function MainPage() {
-  const activeCity = useSelector((state: RootState) => state.activeCity);
-  const allOffers = useSelector((state: RootState) => state.offers);
-  const isOffersLoading = useSelector(
-    (state: RootState) => state.isOffersLoading,
-  );
-  const authorizationStatus = useSelector(
-    (state: RootState) => state.authorizationStatus,
-  );
-  const userData = useSelector((state: RootState) => state.userData);
+  const activeCity = useSelector(selectCity);
+  const isOffersLoading = useSelector(selectIsOffersLoading);
+  const authorizationStatus = useSelector(selectAuthorizationStatus);
+  const userData = useSelector(selectUserData);
 
   const dispatch = useDispatch();
 
   const [activeOfferId, setActiveOfferId] = useState<string | null>(null);
   const [activeSort, setActiveSort] = useState<SortType>('Popular');
 
-  const cityOffers = allOffers.filter(
-    (offer) => offer.city.name === activeCity,
+  const cityOffers = useSelector(selectCityOffers);
+  const sortedOffers = useMemo(
+    () => getSortedOffers(cityOffers, activeSort),
+    [cityOffers, activeSort],
   );
-  const sortedOffers = getSortedOffers(cityOffers, activeSort);
-  const cityData = getCityByName(activeCity);
+  const cityData = useMemo(() => getCityByName(activeCity), [activeCity]);
 
-  function handleCityChange(city: string) {
-    dispatch(setActiveCity(city));
-    setActiveSort('Popular');
-  }
+  const handleCityChange = useCallback(
+    (city: string) => {
+      dispatch(setActiveCity(city));
+      setActiveSort('Popular');
+    },
+    [dispatch],
+  );
 
   if (isOffersLoading) return <Spinner />;
 

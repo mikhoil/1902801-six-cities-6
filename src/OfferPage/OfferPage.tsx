@@ -1,7 +1,7 @@
 import Map from '../Map';
 import ReviewList from './ReviewList';
 import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '../store';
+import { AppDispatch } from '../store';
 import NearOffersList from './NearOffersList';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import { useEffect } from 'react';
@@ -12,6 +12,14 @@ import {
 } from '../store/apiActions';
 import Spinner from '../Spinner/Spinner';
 import { AuthorizationStatus } from '../types/auth';
+import {
+  selectAuthorizationStatus,
+  selectCurrentOffer,
+  selectIsOfferLoading,
+  selectNearbyOffers,
+  selectReviews,
+  selectUserData,
+} from '../store/selectors';
 
 const OFFER_TYPE_MAP: Record<string, string> = {
   apartment: 'Apartment',
@@ -25,16 +33,12 @@ export default function OfferPage() {
 
   const dispatch = useDispatch<AppDispatch>();
 
-  const currentOffer = useSelector((state: RootState) => state.currentOffer);
-  const nearbyOffers = useSelector((state: RootState) => state.nearbyOffers);
-  const reviews = useSelector((state: RootState) => state.reviews);
-  const isOfferLoading = useSelector(
-    (state: RootState) => state.isOfferLoading,
-  );
-  const authorizationStatus = useSelector(
-    (state: RootState) => state.authorizationStatus,
-  );
-  const userData = useSelector((state: RootState) => state.userData);
+  const currentOffer = useSelector(selectCurrentOffer);
+  const nearbyOffers = useSelector(selectNearbyOffers);
+  const reviews = useSelector(selectReviews);
+  const isOfferLoading = useSelector(selectIsOfferLoading);
+  const authorizationStatus = useSelector(selectAuthorizationStatus);
+  const userData = useSelector(selectUserData);
 
   useEffect(() => {
     if (id) {

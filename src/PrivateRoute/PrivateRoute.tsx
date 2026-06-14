@@ -1,18 +1,14 @@
 import { Navigate } from 'react-router-dom';
 import Spinner from '../Spinner/Spinner';
 import { useSelector } from 'react-redux';
-import { RootState } from '../store';
 import { PropsWithChildren } from 'react';
 import { AuthorizationStatus } from '../types/auth';
+import { selectAuthorizationStatus } from '../store/selectors';
 
 export default function PrivateRoute({ children }: PropsWithChildren) {
-  const authorizationStatus = useSelector(
-    (state: RootState) => state.authorizationStatus,
-  );
+  const authorizationStatus = useSelector(selectAuthorizationStatus);
 
-  if (authorizationStatus === AuthorizationStatus.Unknown) {
-    return <Spinner />;
-  }
+  if (authorizationStatus === AuthorizationStatus.Unknown) return <Spinner />;
 
   return authorizationStatus === AuthorizationStatus.Auth ? (
     children
