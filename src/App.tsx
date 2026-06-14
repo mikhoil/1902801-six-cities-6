@@ -5,24 +5,25 @@ import LoginPage from './LoginPage/LoginPage';
 import FavoritesPage from './FavoritesPage/FavoritesPage';
 import NotFoundPage from './NotFoundPage/NotFoundPage';
 import PrivateRoute from './PrivateRoute/PrivateRoute';
+import { Offer } from './mocks/offers';
 
 interface AppProps {
-  offersCount: number;
+  offers: Offer[];
 }
 
-export default function App({ offersCount }: AppProps) {
+export default function App({ offers }: AppProps) {
   const isAuthorized = false;
 
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<MainPage offersCount={offersCount} />} />
+        <Route path="/" element={<MainPage offers={offers} />} />
         <Route path="/login" element={<LoginPage />} />
         <Route
           path="/favorites"
           element={
             <PrivateRoute isAuthorized={isAuthorized}>
-              <FavoritesPage />
+              <FavoritesPage offers={offers} />
             </PrivateRoute>
           }
         />
