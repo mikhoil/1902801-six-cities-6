@@ -1,10 +1,13 @@
-import OfferCard from './OfferCard';
+import { Offer } from '../mocks/offers';
+import OfferList from './OfferList';
 
 interface MainPageProps {
-  offersCount: number;
+  offers: Offer[];
 }
 
-export default function MainPage({ offersCount }: MainPageProps) {
+export default function MainPage({ offers }: MainPageProps) {
+  const offersCount = offers.length;
+
   return (
     <div className="page page--gray page--main">
       <header className="header">
@@ -117,12 +120,7 @@ export default function MainPage({ offersCount }: MainPageProps) {
                   </li>
                 </ul>
               </form>
-              <div className="cities__places-list places__list tabs__content">
-                <OfferCard />
-                <OfferCard />
-                <OfferCard />
-                <OfferCard />
-              </div>
+              <OfferList offers={offers} />
             </section>
             <div className="cities__right-section">
               <section className="cities__map map"></section>
