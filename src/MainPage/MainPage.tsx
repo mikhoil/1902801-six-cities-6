@@ -7,17 +7,13 @@ import SortOptions, { SortType } from './SortOptions';
 import { Offer } from '../types/offer';
 import { setActiveCity } from '../store/action';
 import { mockCityNames, getCityByName } from '../mocks/cities';
-import { Link } from 'react-router-dom';
 import Spinner from '../Spinner/Spinner';
-import { AuthorizationStatus } from '../types/auth';
 import {
-  selectAuthorizationStatus,
   selectCity,
   selectCityOffers,
-  selectFavoriteOffers,
   selectIsOffersLoading,
-  selectUserData,
 } from '../store/selectors';
+import Header from '../Header';
 
 function getSortedOffers(offers: Offer[], sort: SortType): Offer[] {
   switch (sort) {
@@ -35,9 +31,6 @@ function getSortedOffers(offers: Offer[], sort: SortType): Offer[] {
 export default function MainPage() {
   const activeCity = useSelector(selectCity);
   const isOffersLoading = useSelector(selectIsOffersLoading);
-  const authorizationStatus = useSelector(selectAuthorizationStatus);
-  const userData = useSelector(selectUserData);
-  const favoriteOffers = useSelector(selectFavoriteOffers);
 
   const dispatch = useDispatch();
 
@@ -63,63 +56,7 @@ export default function MainPage() {
 
   return (
     <div className="page page--gray page--main">
-      <header className="header">
-        <div className="container">
-          <div className="header__wrapper">
-            <div className="header__left">
-              <Link
-                className="header__logo-link header__logo-link--active"
-                to="/"
-              >
-                <img
-                  className="header__logo"
-                  src="img/logo.svg"
-                  alt="6 cities logo"
-                  width="81"
-                  height="41"
-                />
-              </Link>
-            </div>
-            <nav className="header__nav">
-              <ul className="header__nav-list">
-                {authorizationStatus === AuthorizationStatus.Auth ? (
-                  <>
-                    <li className="header__nav-item user">
-                      <Link
-                        className="header__nav-link header__nav-link--profile"
-                        to="/favorites"
-                      >
-                        <div className="header__avatar-wrapper user__avatar-wrapper"></div>
-                        <span className="header__user-name user__name">
-                          {userData?.email}
-                        </span>
-                        <span className="header__favorite-count">
-                          {favoriteOffers.length}
-                        </span>
-                      </Link>
-                    </li>
-                    <li className="header__nav-item">
-                      <a className="header__nav-link" href="#todo">
-                        <span className="header__signout">Sign out</span>
-                      </a>
-                    </li>
-                  </>
-                ) : (
-                  <li className="header__nav-item user">
-                    <Link
-                      className="header__nav-link header__nav-link--profile"
-                      to="/login"
-                    >
-                      <div className="header__avatar-wrapper user__avatar-wrapper"></div>
-                      <span className="header__login">Sign in</span>
-                    </Link>
-                  </li>
-                )}
-              </ul>
-            </nav>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       <main className="page__main page__main--index">
         <h1 className="visually-hidden">Cities</h1>

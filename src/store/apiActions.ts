@@ -1,9 +1,9 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { AxiosInstance } from 'axios';
 import { Offer } from '../types/offer';
-import { AuthInfo } from '../types/auth';
-import { saveToken } from '../utils/auth';
 import { Review } from '../types/review';
+import { AuthInfo } from '../types/auth';
+import { saveToken, dropToken } from '../utils/auth';
 
 type LoginCredentials = {
   email: string;
@@ -104,4 +104,13 @@ export const toggleFavorite = createAsyncThunk<
 >('data/toggleFavorite', async ({ offerId, status }, { extra: api }) => {
   const { data } = await api.post<Offer>(`/favorite/${offerId}/${status}`);
   return data;
+});
+
+export const logout = createAsyncThunk<
+  void,
+  undefined,
+  { extra: AxiosInstance }
+>('user/logout', async (_arg, { extra: api }) => {
+  await api.delete('/login');
+  dropToken();
 });
