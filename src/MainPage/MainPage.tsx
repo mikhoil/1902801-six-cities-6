@@ -35,6 +35,7 @@ export default function MainPage() {
     (state: RootState) => state.authorizationStatus,
   );
   const userData = useSelector((state: RootState) => state.userData);
+
   const dispatch = useDispatch();
 
   const [activeOfferId, setActiveOfferId] = useState<string | null>(null);
@@ -46,14 +47,12 @@ export default function MainPage() {
   const sortedOffers = getSortedOffers(cityOffers, activeSort);
   const cityData = getCityByName(activeCity);
 
-  const handleCityChange = (city: string) => {
+  function handleCityChange(city: string) {
     dispatch(setActiveCity(city));
     setActiveSort('Popular');
-  };
-
-  if (isOffersLoading) {
-    return <Spinner />;
   }
+
+  if (isOffersLoading) return <Spinner />;
 
   return (
     <div className="page page--gray page--main">

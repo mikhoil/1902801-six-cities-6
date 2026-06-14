@@ -1,4 +1,4 @@
-import { configureStore, Middleware } from '@reduxjs/toolkit';
+import { configureStore } from '@reduxjs/toolkit';
 import { reducer } from './reducer';
 import { createAPI } from '../utils/api';
 

@@ -21,7 +21,7 @@ export interface Offer {
   isFavorite: boolean;
   isPremium: boolean;
   rating: number;
-  descrpition: string;
+  description: string;
   bedrooms: number;
   goods: string[];
   host: {
