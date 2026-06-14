@@ -1,12 +1,15 @@
 import { useSelector } from 'react-redux';
-import OfferCard from '../MainPage/OfferCard';
 import { RootState } from '../store';
 import OfferList from '../MainPage/OfferList';
+import { Link } from 'react-router-dom';
+import OfferCard from '../MainPage/OfferCard';
 
 export default function FavoritesPage() {
-  const offers = useSelector((s: RootState) => s.app.offers);
+  const offers = useSelector((state: RootState) => state.offers);
 
-  const favorites = offers.filter((p) => p.isFavorite);
+  const favoriteOffers = offers.filter((offer) => offer.isFavorite);
+
+  const cities = [...new Set(favoriteOffers.map((offer) => offer.city.name))];
 
   return (
     <div className="page">
@@ -14,7 +17,7 @@ export default function FavoritesPage() {
         <div className="container">
           <div className="header__wrapper">
             <div className="header__left">
-              <a className="header__logo-link" href="main.html">
+              <Link className="header__logo-link" to="/">
                 <img
                   className="header__logo"
                   src="img/logo.svg"
@@ -22,24 +25,26 @@ export default function FavoritesPage() {
                   width="81"
                   height="41"
                 />
-              </a>
+              </Link>
             </div>
             <nav className="header__nav">
               <ul className="header__nav-list">
                 <li className="header__nav-item user">
-                  <a
+                  <Link
                     className="header__nav-link header__nav-link--profile"
-                    href="#"
+                    to="/favorites"
                   >
                     <div className="header__avatar-wrapper user__avatar-wrapper"></div>
                     <span className="header__user-name user__name">
                       Oliver.conner@gmail.com
                     </span>
-                    <span className="header__favorite-count">3</span>
-                  </a>
+                    <span className="header__favorite-count">
+                      {favoriteOffers.length}
+                    </span>
+                  </Link>
                 </li>
                 <li className="header__nav-item">
-                  <a className="header__nav-link" href="#">
+                  <a className="header__nav-link" href="#todo">
                     <span className="header__signout">Sign out</span>
                   </a>
                 </li>
@@ -54,24 +59,34 @@ export default function FavoritesPage() {
           <section className="favorites">
             <h1 className="favorites__title">Saved listing</h1>
             <ul className="favorites__list">
-              <li className="favorites__locations-items">
-                <div className="favorites__locations locations locations--current">
-                  <div className="locations__item">
-                    <a className="locations__item-link" href="#">
-                      <span>Amsterdam</span>
-                    </a>
+              {cities.map((city) => (
+                <li key={city} className="favorites__locations-items">
+                  <div className="favorites__locations locations locations--current">
+                    <div className="locations__item">
+                      <Link className="locations__item-link" to="/">
+                        <span>{city}</span>
+                      </Link>
+                    </div>
                   </div>
-                </div>
-                <div className="favorites__places">
-                  <OfferList offers={favorites} />
-                </div>
-              </li>
+                  <div className="favorites__places">
+                    {favoriteOffers
+                      .filter((offer) => offer.city.name === city)
+                      .map((offer) => (
+                        <OfferCard
+                          key={offer.id}
+                          offer={offer}
+                          classNamePrefix="favorites"
+                        />
+                      ))}
+                  </div>
+                </li>
+              ))}
             </ul>
           </section>
         </div>
       </main>
       <footer className="footer container">
-        <a className="footer__logo-link" href="main.html">
+        <Link className="footer__logo-link" to="/">
           <img
             className="footer__logo"
             src="img/logo.svg"
@@ -79,7 +94,7 @@ export default function FavoritesPage() {
             width="64"
             height="33"
           />
-        </a>
+        </Link>
       </footer>
     </div>
   );

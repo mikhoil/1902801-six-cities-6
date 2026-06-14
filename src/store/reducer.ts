@@ -1,28 +1,33 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { mockOffers, Offer } from '../mocks/offers';
+import { createReducer } from '@reduxjs/toolkit';
+import { Offer } from '../types/offer';
+import { fetchOffers } from './apiActions';
+import { setActiveCity } from './action';
 
 type State = {
   activeCity: string;
   offers: Offer[];
+  isOffersLoading: boolean;
 };
 
 const initialState: State = {
   activeCity: 'Paris',
-  offers: mockOffers,
+  offers: [],
+  isOffersLoading: false,
 };
 
-const slice = createSlice({
-  name: 'app',
-  initialState,
-  reducers: {
-    setCity(state, action: PayloadAction<string>) {
+export const reducer = createReducer(initialState, (builder) => {
+  builder
+    .addCase(setActiveCity, (state, action) => {
       state.activeCity = action.payload;
-    },
-    setOffers(state, action: PayloadAction<Offer[]>) {
+    })
+    .addCase(fetchOffers.pending, (state) => {
+      state.isOffersLoading = true;
+    })
+    .addCase(fetchOffers.fulfilled, (state, action) => {
       state.offers = action.payload;
-    },
-  },
+      state.isOffersLoading = false;
+    })
+    .addCase(fetchOffers.rejected, (state) => {
+      state.isOffersLoading = false;
+    });
 });
-
-export const { setCity, setOffers } = slice.actions;
-export default slice.reducer;

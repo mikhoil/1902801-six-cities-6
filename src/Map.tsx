@@ -1,146 +1,85 @@
 import L from 'leaflet';
 import { useEffect, useRef } from 'react';
-import { Offer } from './mocks/offers';
+import { Offer } from './types/offer';
 import 'leaflet/dist/leaflet.css';
+import { City } from './types/city';
 
 interface MapProps {
+  city: City;
   offers: Offer[];
-  cityName?: string;
-  containerClassName?: string;
-  height?: number | string;
   activeOfferId?: string | null;
+  containerClassName?: string;
 }
+
+const URL_TEMPLATE =
+  'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+const ATTRIBUTION =
+  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>';
+
+const defaultIcon = L.icon({
+  iconUrl: 'img/pin.svg',
+  iconSize: [27, 39],
+  iconAnchor: [13.5, 39],
+});
+
+const activeIcon = L.icon({
+  iconUrl: 'img/pin-active.svg',
+  iconSize: [27, 39],
+  iconAnchor: [13.5, 39],
+});
 
 export default function Map({
   offers,
-  cityName = 'Amsterdam',
+  city,
   containerClassName = 'cities__map map',
-  height,
   activeOfferId,
 }: MapProps) {
   const mapRef = useRef<HTMLDivElement | null>(null);
-  const leafletMap = useRef<L.Map | null>(null);
-  const offersLayerRef = useRef<L.LayerGroup | null>(null);
-  const markersMapRef = useRef<Record<string, L.Marker> | null>(null);
-  const activeMarkerRef = useRef<L.Marker | null>(null);
-  const defaultIconRef = useRef<L.Icon | null>(null);
-  const activeIconRef = useRef<L.Icon | null>(null);
+  const leafletRef = useRef<L.Map | null>(null);
 
   useEffect(() => {
-    if (!mapRef.current) {
-      return;
-    }
-
-    if (!leafletMap.current) {
-      leafletMap.current = L.map(mapRef.current, {
-        center: [52.38333, 4.9],
-        zoom: 12,
-        zoomControl: false,
-        attributionControl: false,
+    if (mapRef.current !== null && leafletRef.current === null) {
+      leafletRef.current = L.map(mapRef.current, {
+        center: {
+          lat: city.location.latitude,
+          lng: city.location.longitude,
+        },
+        zoom: city.location.zoom,
       });
 
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors',
-      }).addTo(leafletMap.current);
+      L.tileLayer(URL_TEMPLATE, { attribution: ATTRIBUTION }).addTo(
+        leafletRef.current,
+      );
     }
 
-    const map = leafletMap.current;
-    if (!map) {
-      return;
-    }
-    const existing = offersLayerRef.current;
-    if (existing) {
-      map.removeLayer(existing);
-      offersLayerRef.current = null;
-    }
+    return () => {
+      leafletRef.current?.remove();
+      leafletRef.current = null;
+    };
+  }, [city]);
 
-    const markers = L.layerGroup();
+  useEffect(() => {
+    if (leafletRef.current !== null) {
+      const markers: L.Marker[] = [];
 
-    if (!defaultIconRef.current) {
-      defaultIconRef.current = L.icon({
-        iconUrl: '/img/pin.svg',
-        iconSize: [27, 39],
-        iconAnchor: [13, 39],
-      });
-    }
-    if (!activeIconRef.current) {
-      activeIconRef.current = L.icon({
-        iconUrl: '/img/pin-active.svg',
-        iconSize: [27, 39],
-        iconAnchor: [13, 39],
-      });
-    }
-
-    markersMapRef.current = {};
-
-    offers
-      .filter((o) => o.city && o.city.name === cityName)
-      .forEach((o) => {
-        if (!o.city) {
-          return;
-        }
-        const marker = L.marker(
-          [o.city.location.latitude, o.city.location.longitude],
-          {
-            icon: defaultIconRef.current!,
-          },
+      offers.forEach((offer) => {
+        const icon = offer.id === activeOfferId ? activeIcon : defaultIcon;
+        markers.push(
+          L.marker(
+            {
+              lat: offer.city.location.latitude,
+              lng: offer.city.location.longitude,
+            },
+            { icon },
+          ).addTo(leafletRef.current!),
         );
-        marker.addTo(markers);
-        markersMapRef.current![+o.id] = marker;
       });
 
-    markers.addTo(map);
-    offersLayerRef.current = markers;
-
-    const latlngs: [number, number][] = [];
-    offers.forEach((p) => {
-      if (p.city && p.city.name === cityName) {
-        latlngs.push([p.city.location.latitude, p.city.location.longitude]);
-      }
-    });
-
-    if (latlngs.length > 0) {
-      const bounds = L.latLngBounds(latlngs);
-      map.fitBounds(bounds, { padding: [50, 50] });
+      return () => {
+        markers.forEach((marker) => marker.remove());
+      };
     }
+  }, [offers, activeOfferId]);
 
-    return () => {};
-  }, [offers, cityName]);
-
-  useEffect(() => {
-    if (!leafletMap.current) {
-      return;
-    }
-    const markersMap = markersMapRef.current;
-    if (!markersMap) {
-      return;
-    }
-
-    const defaultIcon = defaultIconRef.current!;
-    const activeIcon = activeIconRef.current!;
-
-    if (activeMarkerRef.current) {
-      activeMarkerRef.current.setIcon(defaultIcon);
-      activeMarkerRef.current = null;
-    }
-
-    if (activeOfferId != null) {
-      const m = markersMap[activeOfferId];
-      if (m) {
-        m.setIcon(activeIcon);
-        activeMarkerRef.current = m;
-      }
-    }
-  }, [activeOfferId]);
-
-  const styleHeight =
-    typeof height === 'number' ? `${height}px` : (height ?? '100%');
-
-  return (
-    <div
-      ref={mapRef}
-      className={containerClassName}
-      style={{ height: styleHeight }}
-    />
-  );
+  return <div ref={mapRef} className={containerClassName} />;
 }

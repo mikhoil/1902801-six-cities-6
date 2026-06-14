@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Offer } from '../mocks/offers';
+import { Offer } from '../types/offer';
 
 interface OfferCardProps {
   offer: Offer;
@@ -8,6 +8,7 @@ interface OfferCardProps {
   onFocus?: () => void;
   onBlur?: () => void;
   classNamePrefix?: string;
+  isActive?: boolean;
 }
 
 export default function OfferCard({
@@ -17,10 +18,11 @@ export default function OfferCard({
   onFocus,
   onBlur,
   classNamePrefix = 'cities',
+  isActive = false,
 }: OfferCardProps) {
   return (
     <article
-      className={`${classNamePrefix}__card place-card`}
+      className={`${classNamePrefix}__card place-card${isActive ? ' place-card--active' : ''}`}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       onFocus={onFocus}
@@ -37,7 +39,7 @@ export default function OfferCard({
         <Link to={`/offer/${offer.id}`}>
           <img
             className="place-card__image"
-            src={offer.imagesSources[0]}
+            src={offer.previewImage}
             width="260"
             height="200"
             alt="Place image"

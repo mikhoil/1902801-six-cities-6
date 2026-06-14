@@ -1,13 +1,18 @@
 import { useState } from 'react';
-import { Offer } from '../mocks/offers';
+import { Offer } from '../types/offer';
 import OfferCard from './OfferCard';
 
 interface OfferListProps {
   offers: Offer[];
+  activeOfferId: string | null;
   onActiveChange?: (id: string | null) => void;
 }
 
-export default function OfferList({ offers, onActiveChange }: OfferListProps) {
+export default function OfferList({
+  offers,
+  onActiveChange,
+  activeOfferId,
+}: OfferListProps) {
   const [activeId, setActiveId] = useState<string | null>(null);
 
   const handleEnter = (id: string) => {
@@ -26,6 +31,7 @@ export default function OfferList({ offers, onActiveChange }: OfferListProps) {
         <div key={offer.id} data-active={activeId === offer.id}>
           <OfferCard
             offer={offer}
+            isActive={activeOfferId === offer.id}
             onMouseEnter={() => handleEnter(offer.id)}
             onMouseLeave={handleLeave}
             onFocus={() => handleEnter(offer.id)}

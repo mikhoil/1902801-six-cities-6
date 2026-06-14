@@ -1,35 +1,54 @@
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import Map from '../Map';
 import { RootState } from '../store';
 import OfferList from './OfferList';
 import CitiesList from './CitiesList';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import SortOptions, { SortType } from './SortOptions';
+import { Offer } from '../types/offer';
+import { setActiveCity } from '../store/action';
+import { mockCityNames, getCityByName } from '../mocks/cities';
+import { Link } from 'react-router-dom';
+import Spinner from '../Spinner/Spinner';
+
+function getSortedOffers(offers: Offer[], sort: SortType): Offer[] {
+  switch (sort) {
+    case 'Price: low to high':
+      return [...offers].sort((a, b) => a.price - b.price);
+    case 'Price: high to low':
+      return [...offers].sort((a, b) => b.price - a.price);
+    case 'Top rated first':
+      return [...offers].sort((a, b) => b.rating - a.rating);
+    default:
+      return offers;
+  }
+}
 
 export default function MainPage() {
-  const activeCity = useSelector((state: RootState) => state.app.activeCity);
+  const activeCity = useSelector((state: RootState) => state.activeCity);
+  const allOffers = useSelector((state: RootState) => state.offers);
+  const isOffersLoading = useSelector(
+    (state: RootState) => state.isOffersLoading,
+  );
+  const dispatch = useDispatch();
 
-  const allOffers = useSelector((state: RootState) => state.app.offers);
+  const [activeOfferId, setActiveOfferId] = useState<string | null>(null);
+  const [activeSort, setActiveSort] = useState<SortType>('Popular');
 
-  const [sortType, setSortType] = useState<SortType>('Popular');
+  const cityOffers = allOffers.filter(
+    (offer) => offer.city.name === activeCity,
+  );
+  const sortedOffers = getSortedOffers(cityOffers, activeSort);
+  const cityData = getCityByName(activeCity);
 
-  const [activeId, setActiveId] = useState<string | null>(null);
+  const handleCityChange = (city: string) => {
+    dispatch(setActiveCity(city));
+    setActiveSort('Popular');
+  };
 
-  const offersByCity = useMemo(() => {
-    const filtered = allOffers.filter((p: any) => p.city?.name === activeCity);
-    if (sortType === 'Popular') {
-      return filtered;
-    }
-    if (sortType === 'Price: low to high') {
-      return [...filtered].sort((a, b) => (a.price ?? 0) - (b.price ?? 0));
-    }
-    if (sortType === 'Price: high to low') {
-      return [...filtered].sort((a, b) => (b.price ?? 0) - (a.price ?? 0));
-    }
-    return [...filtered].sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
-  }, [allOffers, activeCity, sortType]);
-
-  const offersCount = offersByCity.length;
+  if (isOffersLoading) {
+    return <Spinner />;
+  }
 
   return (
     <div className="page page--gray page--main">
@@ -37,7 +56,10 @@ export default function MainPage() {
         <div className="container">
           <div className="header__wrapper">
             <div className="header__left">
-              <a className="header__logo-link header__logo-link--active">
+              <Link
+                className="header__logo-link header__logo-link--active"
+                to="/"
+              >
                 <img
                   className="header__logo"
                   src="img/logo.svg"
@@ -45,24 +67,24 @@ export default function MainPage() {
                   width="81"
                   height="41"
                 />
-              </a>
+              </Link>
             </div>
             <nav className="header__nav">
               <ul className="header__nav-list">
                 <li className="header__nav-item user">
-                  <a
+                  <Link
                     className="header__nav-link header__nav-link--profile"
-                    href="#"
+                    to="/favorites"
                   >
                     <div className="header__avatar-wrapper user__avatar-wrapper"></div>
                     <span className="header__user-name user__name">
                       Oliver.conner@gmail.com
                     </span>
                     <span className="header__favorite-count">3</span>
-                  </a>
+                  </Link>
                 </li>
                 <li className="header__nav-item">
-                  <a className="header__nav-link" href="#">
+                  <a className="header__nav-link" href="#todo">
                     <span className="header__signout">Sign out</span>
                   </a>
                 </li>
@@ -74,48 +96,34 @@ export default function MainPage() {
 
       <main className="page__main page__main--index">
         <h1 className="visually-hidden">Cities</h1>
-        <CitiesList currentCity={activeCity} />
+        <div className="tabs">
+          <section className="locations container">
+            <CitiesList
+              cities={mockCityNames}
+              currentCity={activeCity}
+              onCityChange={handleCityChange}
+            />
+          </section>
+        </div>
         <div className="cities">
           <div className="cities__places-container container">
             <section className="cities__places places">
               <h2 className="visually-hidden">Places</h2>
               <b className="places__found">
-                {offersCount} places to stay in {activeCity}
+                {sortedOffers.length} places to stay in {activeCity}
               </b>
-              <form className="places__sorting" action="#" method="get">
-                <span className="places__sorting-caption">Sort by</span>
-                <span className="places__sorting-type" tabIndex={0}>
-                  Popular
-                  <svg className="places__sorting-arrow" width="7" height="4">
-                    <use xlinkHref="#icon-arrow-select"></use>
-                  </svg>
-                </span>
-                <ul className="places__options places__options--custom places__options--opened">
-                  <li
-                    className="places__option places__option--active"
-                    tabIndex={0}
-                  >
-                    Popular
-                  </li>
-                  <li className="places__option" tabIndex={0}>
-                    Price: low to high
-                  </li>
-                  <li className="places__option" tabIndex={0}>
-                    Price: high to low
-                  </li>
-                  <li className="places__option" tabIndex={0}>
-                    Top rated first
-                  </li>
-                </ul>
-              </form>
-              <SortOptions value={sortType} onChange={setSortType} />
-              <OfferList offers={offersByCity} onActiveChange={setActiveId} />
+              <SortOptions value={activeSort} onChange={setActiveSort} />
+              <OfferList
+                offers={sortedOffers}
+                activeOfferId={activeOfferId}
+                onActiveChange={setActiveOfferId}
+              />
             </section>
             <div className="cities__right-section">
               <Map
-                offers={offersByCity}
-                activeOfferId={activeId}
-                containerClassName="cities__map map"
+                city={cityData}
+                offers={sortedOffers}
+                activeOfferId={activeOfferId}
               />
             </div>
           </div>

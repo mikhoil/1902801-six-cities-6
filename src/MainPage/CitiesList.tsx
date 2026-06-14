@@ -1,26 +1,18 @@
-import { useDispatch } from 'react-redux';
-import { setCity } from '../store/reducer';
-
-const CITIES = [
-  'Paris',
-  'Cologne',
-  'Brussels',
-  'Amsterdam',
-  'Hamburg',
-  'Dusseldorf',
-];
-
 interface CitiesListProps {
   currentCity: string;
+  cities: string[];
+  onCityChange: (city: string) => void;
 }
 
-export default function CitiesList({ currentCity }: CitiesListProps) {
-  const dispatch = useDispatch();
-
+export default function CitiesList({
+  currentCity,
+  cities,
+  onCityChange,
+}: CitiesListProps) {
   return (
     <section className="locations container">
       <ul className="locations__list tabs__list">
-        {CITIES.map((c) => (
+        {cities.map((c) => (
           <li className="locations__item" key={c}>
             <a
               className={`locations__item-link tabs__item ${
@@ -29,7 +21,7 @@ export default function CitiesList({ currentCity }: CitiesListProps) {
               href="#"
               onClick={(e) => {
                 e.preventDefault();
-                dispatch(setCity(c));
+                onCityChange(c);
               }}
             >
               <span>{c}</span>
